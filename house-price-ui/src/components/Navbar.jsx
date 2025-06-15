@@ -1,10 +1,9 @@
-// src/components/Navbar.jsx
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 
 const Navbar = () => {
-  const paths = ['/', '/predict', '/explore', '/login'];
-  const labels = ['Home', 'Predict', 'Explore', 'Login'];
+  const paths = ['/', '/predict', '/explore', '/auth']; // ✅ changed '/login' → '/auth'
+  const labels = ['Home', 'Predict', 'Explore', 'Login/Register']; // ✅ updated label
 
   return (
     <nav style={styles.navbar}>
@@ -38,7 +37,6 @@ const styles = {
     height: '60px',
     backgroundColor: '#1e1e1e',
     zIndex: 1000,
-
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
