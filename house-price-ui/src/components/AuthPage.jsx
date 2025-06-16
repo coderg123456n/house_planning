@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const AuthPage = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -8,8 +9,12 @@ const AuthPage = () => {
     password: '',
     confirm: ''
   });
+
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState(false);
+  const [user, setUser] = useState(null);
+  const [users, setUsers] = useState([]);
+
+  const navigate = useNavigate(); // ✅ Required for redirection
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -22,24 +27,59 @@ const AuthPage = () => {
 
     if (!email || !password || (!isLogin && (!name || !confirm))) {
       setError('Please fill in all required fields.');
-    } else if (!isLogin && password !== confirm) {
-      setError('Passwords do not match.');
-    } else {
-      setSuccess(true);
-      setForm({ name: '', email: '', password: '', confirm: '' });
-      setTimeout(() => setSuccess(false), 3000);
+      return;
     }
+
+    if (!isLogin) {
+      if (password !== confirm) {
+        setError('Passwords do not match.');
+        return;
+      }
+
+      const userExists = users.find((u) => u.email === email);
+      if (userExists) {
+        setError('User already exists.');
+        return;
+      }
+
+      const newUser = { name, email, password };
+      setUsers([...users, newUser]);
+      setUser(newUser);
+      setForm({ name: '', email: '', password: '', confirm: '' });
+
+      // ✅ Redirect after successful register
+      setTimeout(() => navigate('/profile'), 100);
+      return;
+    } else {
+      const existingUser = users.find((u) => u.email === email);
+      if (!existingUser) {
+        setError('No user found with this email.');
+        return;
+      }
+
+      if (existingUser.password !== password) {
+        setError('Incorrect password.');
+        return;
+      }
+
+      setUser(existingUser);
+      setForm({ name: '', email: '', password: '', confirm: '' });
+
+      // ✅ Redirect after successful login
+      setTimeout(() => navigate('/profile'), 100);
+    }
+  };
+
+  const logout = () => {
+    setUser(null);
+    setIsLogin(true);
+    navigate('/auth'); // ✅ Optional: Redirect back to auth page on logout
   };
 
   return (
     <div style={styles.container}>
       <div style={styles.card}>
         <h2>{isLogin ? '🔐 Login' : '📝 Register'}</h2>
-        {success && (
-          <p style={{ color: 'lightgreen', marginBottom: '1rem' }}>
-            {isLogin ? 'Login successful!' : 'Registration successful!'}
-          </p>
-        )}
         <form onSubmit={handleSubmit} style={styles.form}>
           {!isLogin && (
             <input
@@ -82,17 +122,13 @@ const AuthPage = () => {
           </button>
         </form>
         {error && <p style={styles.error}>{error}</p>}
-
         <div style={{ marginTop: '1.5rem' }}>
-          <span style={{ marginRight: '0.5rem' }}>
-            {isLogin ? "Don't have an account?" : 'Already have an account?'}
-          </span>
+          <span>{isLogin ? "Don't have an account?" : 'Already have an account?'}</span>
           <button
             onClick={() => {
               setIsLogin(!isLogin);
               setForm({ name: '', email: '', password: '', confirm: '' });
               setError('');
-              setSuccess(false);
             }}
             style={styles.toggleBtn}
           >
@@ -153,7 +189,8 @@ const styles = {
     border: 'none',
     cursor: 'pointer',
     fontWeight: 'bold',
-    textDecoration: 'underline'
+    textDecoration: 'underline',
+    marginLeft: '0.5rem'
   },
   error: {
     color: 'salmon',

@@ -1,13 +1,17 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, Link } from 'react-router-dom';
 
 const Navbar = () => {
-  const paths = ['/', '/predict', '/explore', '/auth']; // ✅ changed '/login' → '/auth'
-  const labels = ['Home', 'Predict', 'Explore', 'Login/Register']; // ✅ updated label
+  const paths = ['/', '/predict', '/explore', '/auth'];
+  const labels = ['Home', 'Predict', 'Explore', 'Login/Register'];
 
   return (
     <nav style={styles.navbar}>
-      <div style={styles.logo}>🏠 HousePredictor</div>
+      {/* ✅ Clickable logo */}
+      <Link to="/" style={styles.logoLink}>
+        <h1 style={styles.logo}>🏠 HousePredictor</h1>
+      </Link>
+
       <ul style={styles.navLinks}>
         {paths.map((path, idx) => (
           <li key={path}>
@@ -45,10 +49,15 @@ const styles = {
     boxSizing: 'border-box',
     borderBottom: '1px solid #333',
   },
+  logoLink: {
+    textDecoration: 'none',
+    color: 'inherit',
+  },
   logo: {
     fontSize: '1.5rem',
     fontWeight: 'bold',
     color: 'white',
+    margin: 0,
   },
   navLinks: {
     listStyle: 'none',
